@@ -32,15 +32,23 @@ const __dirname = path.dirname(__filename);
 VideoCallManager.initializeSocket(server);
 
 // CORS setup
-const allowedOrigins = [process.env.FRONTEND_URL];
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://nexus-platform-dusky.vercel.app', // Add your Vercel URL explicitly
+  'http://localhost:5173' // Keep for development
+];
+
 app.use(cors({
   origin: function(origin, callback){
+    // Allow requests with no origin (mobile apps, curl, etc)
     if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = `CORS error: Origin ${origin} not allowed`;
-      return callback(new Error(msg), false);
+    
+    if(allowedOrigins.indexOf(origin) !== -1){
+      return callback(null, true);
     }
-    return callback(null, true);
+    
+    const msg = `CORS error: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.join(', ')}`;
+    return callback(new Error(msg), false);
   },
   credentials: true
 }));

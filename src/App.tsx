@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -27,13 +26,12 @@ import { DocumentsPage } from './pages/documents/DocumentsPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 import { HelpPage } from './pages/help/HelpPage';
 import { DealsPage } from './pages/deals/DealsPage';
+import { PaymentsPage } from './pages/Payment/Payment';
 
 // Calendar Pages
 import { CalendarPage } from './pages/calendar/CalendarPage';
 import { ScheduleMeetingPage } from './pages/calendar/ScheduleMeetingPage';
 import DocumentPage from './pages/calendar/DocumentPage';
-
-
 
 // Chat Pages
 import { ChatPage } from './pages/chat/ChatPage';
@@ -63,17 +61,23 @@ function App() {
             </Route>
           </Route>
           
-       {/* Protected Calendar Route */}
-<Route element={<ProtectedRoute />}>
-  <Route path="/calendar" element={<DashboardLayout />}>
-    <Route index element={<CalendarPage />} />
-    <Route path="schedule" element={<ScheduleMeetingPage />} />
-    <Route path="documents" element={<DocumentPage />} /> {/* relative path */}
-  </Route>
-</Route>
+          {/* Protected Calendar Route */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/calendar" element={<DashboardLayout />}>
+              <Route index element={<CalendarPage />} />
+              <Route path="schedule" element={<ScheduleMeetingPage />} />
+              <Route path="documents" element={<DocumentPage />} />
+            </Route>
+          </Route>
 
+          {/* Protected Payments Route - Investor Only */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/payments" element={<DashboardLayout />}>
+              <Route index element={<PaymentsPage />} />
+            </Route>
+          </Route>
           
-          {/* Protected Feature Routes - These should be at root level */}
+          {/* Protected Feature Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/investors" element={<DashboardLayout />}>
               <Route index element={<InvestorsPage />} />

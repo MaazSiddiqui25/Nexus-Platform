@@ -16,6 +16,7 @@ import calendarRoutes from "./routes/calendarRoutes.js";
 import videoCallRoutes from "./routes/videoCallRoutes.js";
 import documentRoutes from "./routes/documentRoutes.js";
 import userLookupRoutes from './routes/userLookupRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js'; // ✅ New payment routes
 
 // Import video call manager
 import VideoCallManager from "./utils/videoCallManager.js";
@@ -44,6 +45,10 @@ app.use(cors({
   credentials: true
 }));
 
+// ✅ Special handling for Stripe webhooks (raw body needed)
+
+
+// Regular JSON middleware for other routes
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.set('trust proxy', 1);
@@ -56,19 +61,21 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get("/", (req, res) => {
   res.json({
     message: "🚀 Nexus API Server is running!",
-    version: "2.0.0",
+    version: "3.0.0",
     features: {
       meetings: "✅ Meeting scheduling with conflict detection",
       calendar: "✅ Calendar sync and bulk operations",
       videoCalls: "✅ WebRTC video calling with Socket.IO",
-      documents: "✅ Document upload, sharing & e-signatures"
+      documents: "✅ Document upload, sharing & e-signatures",
+      payments: "✅ Payment processing with Stripe integration" // ✅ New feature
     },
     availableRoutes: {
       auth: "/api/auth",
       meetings: "/api/meetings",
       calendar: "/api/calendar", 
       videoCalls: "/api/video-calls",
-      documents: "/api/documents"
+      documents: "/api/documents",
+      payments: "/api/payments" // ✅ New route
     },
     socketEndpoint: "/socket.io"
   });
@@ -81,6 +88,7 @@ app.use("/api/calendar", calendarRoutes);
 app.use("/api/video-calls", videoCallRoutes);
 app.use("/api/documents", documentRoutes);
 app.use('/api', userLookupRoutes);
+app.use('/api/payments', paymentRoutes); // ✅ New payment routes
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -90,7 +98,12 @@ app.get("/health", (req, res) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     activeRooms: VideoCallManager.rooms.size,
-    activeParticipants: VideoCallManager.participants.size
+    activeParticipants: VideoCallManager.participants.size,
+    features: {
+      database: "connected",
+      stripe: process.env.STRIPE_SECRET_KEY ? "configured" : "not configured",
+      jwt: process.env.JWT_SECRET ? "configured" : "not configured"
+    }
   });
 });
 
@@ -104,6 +117,11 @@ app.use((err, req, res, next) => {
   
   if (err.code === 'LIMIT_FILE_COUNT') {
     return res.status(400).json({ message: 'Too many files. Maximum is 10 files at once.' });
+  }
+
+  // Stripe webhook signature verification errors
+  if (err.message && err.message.includes('signature')) {
+    return res.status(400).json({ message: 'Invalid webhook signature' });
   }
   
   res.status(err.status || 500).json({ 
@@ -121,7 +139,8 @@ app.use((req, res) => {
       meetings: "/api/meetings",
       calendar: "/api/calendar",
       videoCalls: "/api/video-calls", 
-      documents: "/api/documents"
+      documents: "/api/documents",
+      payments: "/api/payments" // ✅ Include in 404 response
     }
   });
 });
@@ -136,8 +155,10 @@ server.listen(PORT, () => {
   console.log(`   Calendar: http://localhost:${PORT}/api/calendar`);
   console.log(`   Video Calls: http://localhost:${PORT}/api/video-calls`);
   console.log(`   Documents: http://localhost:${PORT}/api/documents`);
+  console.log(`   Payments: http://localhost:${PORT}/api/payments`); // ✅ New route
   console.log(`🔌 Socket.IO endpoint: ws://localhost:${PORT}`);
   console.log(`📁 Static files: http://localhost:${PORT}/uploads`);
+  console.log(`💳 Stripe webhook: http://localhost:${PORT}/api/payments/webhook/stripe`);
 });
 
 // Graceful shutdown

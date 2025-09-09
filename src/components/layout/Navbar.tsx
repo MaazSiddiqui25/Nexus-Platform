@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Menu, X, Bell, MessageCircle, User, LogOut, Building2, CircleDollarSign, Calendar } from 'lucide-react';
+import { 
+  Menu, 
+  X, 
+  Bell, 
+  MessageCircle, 
+  User, 
+  LogOut, 
+  Building2, 
+  CircleDollarSign, 
+  Calendar,
+  CreditCard
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
@@ -40,6 +51,12 @@ export const Navbar: React.FC = () => {
       text: 'Calendar',
       path: user ? '/calendar' : '/login',
     },
+    // Payments link - only show for investors
+    ...(user?.role === 'investor' ? [{
+      icon: <CreditCard size={18} />,
+      text: 'Payments',
+      path: '/payments',
+    }] : []),
     {
       icon: <MessageCircle size={18} />,
       text: 'Messages',

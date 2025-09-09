@@ -18,7 +18,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "minio": "^8.0.5",
-    "mongoose": "^8.18.1"
+    "mongoose": "^8.18.1",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@types/minio": "^7.1.0",

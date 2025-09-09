@@ -34,7 +34,7 @@ VideoCallManager.initializeSocket(server);
 // CORS setup
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  'https://nexus-platform-dusky.vercel.app', // Add your Vercel URL explicitly
+  'https://nexus-platform-nu.vercel.app',, // Add your Vercel URL explicitly
   'http://localhost:5173' // Keep for development
 ];
 
